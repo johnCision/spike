@@ -1,7 +1,7 @@
 {
-	"name": "@johncision/ux-service",
+	"name": "@johncision/spike",
 	"type":"module",
 	"scripts": {
-		"ux": "node ux"
+		"ux": "node src/ux"
 	}
 }

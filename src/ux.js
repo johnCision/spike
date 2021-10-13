@@ -1,13 +1,16 @@
+
+import { promises as fs } from 'fs'
+
 import { createLocalServer } from './http/http.js'
 import { createRouter } from './http/route.js'
 import { handleGithubAuth } from './auth/github.js'
 import { createWorkflowHandler } from './workflow/workflow.js'
 
-const delightUsersStore = {
+const rarityUserStore = {
 	'email': { state: 'anon' }
 }
 
-const delighAppStates = {
+const rarityState = {
 	'anon': {
 		'LOGIN': { target: 'welcome_user' }
 	},
@@ -27,14 +30,29 @@ const delighAppStates = {
 	}
 }
 
-const handleDelightAppWorkflow = createWorkflowHandler()
+const handleRarityApplication = createWorkflowHandler({
+	store: rarityUserStore,
+	machine: rarityState
+})
+
+const handlerRainbowDashApplication = createWorkflowHandler()
 
 const router = await createRouter({
 	'/github_token': handleGithubAuth,
-	'/delight': handleDelightAppWorkflow,
+	'/rarity': handleRarityApplication,
+	'/rainbowdash': handlerRainbowDashApplication,
 	'/data': undefined
 })
-const server = await createLocalServer()
+
+// read in all the stuff for https
+// should add AbortController to these calls
+const cert = await fs.readFile('./secrets/localhost-cert.pem', 'utf-8')
+const key = await fs.readFile('./secrets/localhost-privkey.pem', 'utf-8')
+const pfx = await fs.readFile('./secrets/output.pfx', ) // utf8 here failed
+
+const server = await createLocalServer({
+	cert, key, pfx,  passphrase: 'asdf'
+})
 server.on('error', e => console.log({ e }))
 server.on('request', router)
 
