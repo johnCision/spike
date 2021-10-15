@@ -1,3 +1,4 @@
+import { workerData, parentPort  } from 'worker_threads'
 import * as http2 from 'http2'
 
 const {
@@ -14,14 +15,12 @@ const {
 } = http2.constants;
 
 
-async function request_token(code) {
-	const client_id = '86bb02292e0e29cc1ae6'
-	const client_secret = 'ec88736b241d8f669d8a3023ee29ba60f26ba3cf'
+async function request_token(code, client_id, client_secret, cert) {
 
 	// 'https://github.com/login/oauth/access_token'
 	return new Promise((resolve, reject) => {
 		const client = http2.connect('https://github.com', {
-			//ca: localCert
+			// ca: cert // not sure if needed yet
 		});
 
 		client.on('error', (err) => reject(err));
@@ -63,19 +62,31 @@ async function request_token(code) {
 	})
 }
 
+function handleMessageSync(message) {
+	handleMessage(message)
+		.then()
+		.catch(e => console.warn({ e }))
+}
 
+async function handleMessage(message) {
+	const { method, pathname, search } = message
 
-export async function handleGithubAuth(method, pathname, search) {
-	console.log('handling github auth')
-	if(pathname !== '/github_token') { throw new Error('unhandled pathname') }
 	const sp = new URLSearchParams(search)
-
 	if(!sp.has('code')) {
-		console.log('no code?')
 		throw new Error('no code')
 	}
 
 	const code = sp.get('code')
-	const token = await request_token(code)
-	return JSON.stringify({ token })
+	const token = await request_token(code, client_id, client_secret, cert)
+	return { token }
 }
+
+function handleErrorSync(err) {
+	console.warn({ err })
+}
+
+//
+const { client_id, client_secret, cert } = workerData
+parentPort.on('message', handleMessageSync)
+parentPort.on('error', handleErrorSync)
+

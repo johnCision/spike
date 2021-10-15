@@ -1,7 +1,41 @@
 {
-	"name": "@johncision/spike",
-	"type":"module",
-	"scripts": {
-		"ux": "node src/ux"
-	}
+  "name": "@johncision/spike",
+  "description": "",
+  "version": "1.0.0",
+  "type": "module",
+  "files": [
+    "src/**/*.js"
+  ],
+  "scripts": {
+    "ux": "node src/ux/ux",
+    "lint": "node_modules/.bin/eslint ."
+  },
+  "eslintConfig": {
+    "extends": [
+      "@johncision/eslint-config/module"
+    ],
+    "ignorePatterns": "spec/**"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnCision/spike.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johnCision/spike/issues"
+  },
+  "homepage": "https://github.com/johnCision/spike#readme",
+  "dependencies": {
+    "@johncision/eslint-config": "^2.0.0",
+    "eslint": "^8.0.1"
+  },
+  "devDependencies": {
+    "eslint-plugin-fp": "^2.3.0",
+    "eslint-plugin-immutable": "^1.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-security": "^1.4.0",
+    "nodemon": "^2.0.13"
+  }
 }

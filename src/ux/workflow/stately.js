@@ -1,7 +1,5 @@
 
-
-
-class Stately {
+export class Stately {
 	static async transition(machine, state, transition) {
 		const options = machine[state]
 		if(options === undefined) { throw new Error('unknown state') }
@@ -14,20 +12,4 @@ class Stately {
 			target
 		}
 	}
-}
-
-class Storage {
-	static async add(store, id, doc) { }
-	static async get(store, id) { }
-}
-
-export async function createWorkflowHandler(storage, machine) {
-
-}
-
-export async function handleWorkflow(method, pathname, search) {
-
-	const userState = userDB
-
-
 }
