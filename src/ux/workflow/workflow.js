@@ -5,7 +5,7 @@ class Storage {
 }
 
 export async function createWorkflowHandler(storage, machine) {
-	return async (method, pathname, search) => {
-		return { error: 'workflow not impl.' }
+	return async () => {
+		return { state: 'new_state' }
 	}
 }

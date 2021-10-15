@@ -19,8 +19,6 @@ function writeResponse(res, code, obj) {
 
 export async function createRouter(options) {
 
-	console.log('binding routes', { options })
-
 	return (req, res) => {
 		// construct a url object out of the request url
 		// need a dummy base in order to construct properly, however,
@@ -37,24 +35,35 @@ export async function createRouter(options) {
 			.find(key => true) // should add subfind based on length of key
 
 		// lookup and validate handler
-		const handler = options[basePathname]
-		if(handler === undefined || typeof handler !== 'function') {
+		const servicePort = options[basePathname]
+		if(servicePort === undefined) {
 			// if this is not found, or not a proper function, return 404
 			writeResponse(res, 404, { error: 'no handler for path', pathname })
 			return
 		}
 
 		const channel = new MessageChannel()
+		const port = channel.port1
 
+		const timer = setTimeout(() => {
+			writeResponse(res, 408, {})
+		}, 1000 * 1)
 
-		// fire promise for response
-		// handler is not async, thus explicit promise with catch required
-		// res should realy have a .waitFor(<promis>) method
-		handler(method, pathname, search)
-			.then(result => writeResponse(res, 200, result))
-			.catch(e => writeResponse(res, 200, {
+		port.on('message', reply => {
+			clearTimeout(timer)
+			writeResponse(res, 200, reply)
+		})
+		port.on('error', e => {
+			clearTimeout(timer)
+			writeResponse(res, 200, {
 				error: 'exception in handler',
-				message: e.message
-			}))
+				message: e?.message })
+		})
+
+		servicePort.postMessage({
+			type: 'http-request',
+			method, pathname, search,
+			replyPort: channel.port2
+		}, [ channel.port2 ])
 	}
 }

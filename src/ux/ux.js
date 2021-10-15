@@ -12,8 +12,6 @@ const instanceEnv = './src/ux.env.json'
 
 const envSchema = await fs.readFile('./src/ux/ux.env.schema.json', 'utf-8')
 
-function rootPostMessage(message) { throw new Error('root') }
-
 function routeFromIrn(irn, baseIrn) {
 	return irn.replace(baseIrn, '')
 }
@@ -24,9 +22,9 @@ async function createServiceInstance(service, baseIrn) {
 		workerData: service.parameters
 	})
 
-	const postMessage = worker.postMessage
+	const port = worker
 
-	return { route, postMessage }
+	return { route, port }
 }
 
 async function createWorkflowInstance(workflow, baseIrn) {
@@ -35,16 +33,17 @@ async function createWorkflowInstance(workflow, baseIrn) {
 	const channel = new MessageChannel()
 
 	channel.port2.on('message', msg => {
-		const { resPort } = msg
+		const { replyPort } = msg
 
 		// in sync method, use promise api
-		handler(msg)
-			.then(resPort.postMessage)
-			.cathc(e => console.warn({ e }))
+		handler()
+			.then(result => replyPort.postMessage(result))
+			.catch(e => console.warn('workflow reply message handler error', { e }))
 	})
+	channel.port2.on('error', e => console.warn({ e }))
 
-	const postMessage = channel.port1.postMessage
-	return { route, postMessage }
+	const port = channel.port1
+	return { route, port }
 }
 
 async function createSpikeInstance(instanceEnv) {
@@ -57,8 +56,6 @@ async function createSpikeInstance(instanceEnv) {
 	const key = await fs.readFile(ux.secrets.key, 'utf-8')
 	const pfx = await fs.readFile(ux.secrets.pfx, ) // utf8 here failed
 
-	const root = { '/': rootPostMessage }
-
 	const workflows = await Promise.all(ux.workflows
 		.filter(workflow => workflow.active !== false)
 		.map(async workflow => await createWorkflowInstance(workflow, ux.irn)))
@@ -69,13 +66,14 @@ async function createSpikeInstance(instanceEnv) {
 
 	const routes = [ ...workflows, ...services ]
 		.reduce((accumulator, binding) => {
-			const { route, postMessage } = binding
+			const { route, port } = binding
 			return {
 				...accumulator,
-				[route]: postMessage
+				[route]: port
 			}
 		}, {})
-	const router = await createRouter({ ...routes, ...root })
+
+	const router = await createRouter({ ...routes })
 
 	const server = await createLocalServer({
 		cert, key, pfx,  passphrase: ux.secrets.passphrase
