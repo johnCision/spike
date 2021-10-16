@@ -1,70 +1,48 @@
-
 import { promises as fs } from 'fs'
-import { Worker, MessageChannel } from 'worker_threads'
 
-import { validate } from './validator.js'
+import { validate } from './util-validator.js'
+import { iriToRelativePath } from './util-iri-relative-path.js'
 
-import { createLocalServer } from './http/http.js'
+import { createHTTP2Server } from './http/http.js'
+import { createHTTPStaticServer } from './static-http/static-http.js'
 import { createRouter } from './http/route.js'
-import { createWorkflowHandler } from './workflow/workflow.js'
 
-const instanceEnv = './src/ux.env.json'
+import { createServiceInstance } from './ux.service.instance.js'
+import { createWorkflowInstance } from './ux.workflow.instance.js'
 
-const envSchema = await fs.readFile('./src/ux/ux.env.schema.json', 'utf-8')
+const UTF_8 = 'utf-8'
 
-function routeFromIrn(irn, baseIrn) {
-	return irn.replace(baseIrn, '')
+if(process.argv.length <= 2) {
+	throw new Error('missing evn configuration json')
 }
 
-async function createServiceInstance(service, baseIrn) {
-	const route = routeFromIrn(service.irn, baseIrn)
-	const worker = new Worker(service.irl, {
-		workerData: service.parameters
-	})
+const commandLineArg = process.argv[process.argv.length - 1]
 
-	const port = worker
-
-	return { route, port }
-}
-
-async function createWorkflowInstance(workflow, baseIrn) {
-	const route = routeFromIrn(workflow.irn, baseIrn)
-	const handler = await createWorkflowHandler(workflow.parameters)
-	const channel = new MessageChannel()
-
-	channel.port2.on('message', msg => {
-		const { replyPort } = msg
-
-		// in sync method, use promise api
-		handler()
-			.then(result => replyPort.postMessage(result))
-			.catch(e => console.warn('workflow reply message handler error', { e }))
-	})
-	channel.port2.on('error', e => console.warn({ e }))
-
-	const port = channel.port1
-	return { route, port }
-}
+const envSchema = await fs.readFile('./src/ux/ux.env.schema.json', UTF_8)
 
 async function createSpikeInstance(instanceEnv) {
-	const canidateUx = await fs.readFile(instanceEnv, 'utf-8')
+	const canidateUx = await fs.readFile(instanceEnv, UTF_8)
 	const ux = await validate(canidateUx, envSchema)
 
 	// read in all the stuff for https
 	// should add AbortController to these calls
-	const cert = await fs.readFile(ux.secrets.cert, 'utf-8')
-	const key = await fs.readFile(ux.secrets.key, 'utf-8')
-	const pfx = await fs.readFile(ux.secrets.pfx, ) // utf8 here failed
+	const cert = await fs.readFile(ux.secrets.cert, UTF_8)
+	const key = await fs.readFile(ux.secrets.key, UTF_8)
+	const pfx = await fs.readFile(ux.secrets.pfx) // utf-8 here failed
 
-	const workflows = await Promise.all(ux.workflows
+	const futureWorkflows = ux.workflows
 		.filter(workflow => workflow.active !== false)
-		.map(async workflow => await createWorkflowInstance(workflow, ux.irn)))
+		.map(workflow => createWorkflowInstance(workflow, ux.irn))
 
-	const services = await Promise.all(ux.services
+	const futureServices = ux.services
 		.filter(service => service.active !== false)
-		.map(async service => await createServiceInstance(service, ux.irn)))
+		.map(service => createServiceInstance(service, ux.irn))
 
-	const routes = [ ...workflows, ...services ]
+	const routesList = await Promise.all([
+		...futureWorkflows,
+		...futureServices
+	])
+	const routes = routesList
 		.reduce((accumulator, binding) => {
 			const { route, port } = binding
 			return {
@@ -75,14 +53,34 @@ async function createSpikeInstance(instanceEnv) {
 
 	const router = await createRouter({ ...routes })
 
-	const server = await createLocalServer({
-		cert, key, pfx,  passphrase: ux.secrets.passphrase
+	const server = await createHTTP2Server({
+		cert, key, pfx, passphrase: ux.secrets.passphrase
 	})
 	server.on('error', e => console.log({ e }))
 	server.on('request', router)
-	//server.on('stream', eventSource)
+	// server.on('stream', eventSource)
 
 	server.listen(ux.port, () => console.log('service up'))
+
+	const staticRoutes = ux.statics
+		.map(s => ({
+			route: iriToRelativePath(s.irn, ux.baseIrn),
+			rootIrl: s.irl
+		}))
+		.reduce((accumulator, binding) => {
+			const { route, rootIrl } = binding
+			return {
+				...accumulator,
+				[route]: rootIrl
+			}
+		}, { })
+
+	const staticServer = await createHTTPStaticServer(staticRoutes)
+
+	staticServer.listen(ux.staticPort, () => console.log('web up'))
+
+	return true
 }
 
-const spike = await createSpikeInstance(instanceEnv)
+// and go!
+const _unused = await createSpikeInstance(commandLineArg)

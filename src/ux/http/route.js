@@ -25,7 +25,10 @@ export async function createRouter(options) {
 		// it is not - and should not - ever be read in the follwoing code
 		const reqUrl = new URL(req.url, 'https://dummy')
 
-		const { method, pathname, search } = reqUrl
+		const { pathname, search } = reqUrl
+		const { method } = req
+
+		console.log({ method, pathname, search })
 
 		// find 'best' pathname for this request
 		const canidates = Object.keys(options)

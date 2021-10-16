@@ -7,14 +7,35 @@
     "src/**/*.js"
   ],
   "scripts": {
-    "ux": "node src/ux/ux",
+    "ux": "node src/ux/ux src/ux.env.json",
     "lint": "node_modules/.bin/eslint ."
   },
   "eslintConfig": {
     "extends": [
       "@johncision/eslint-config/module"
     ],
-    "ignorePatterns": "spec/**"
+    "ignorePatterns": "spec/**",
+    "env": { "node": true },
+    "rules": {
+      "fp/no-unused-expression": 0,
+      "fp/no-nil": 0,
+      "no-unused-vars": [ "error", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }],
+      "import/no-nodejs-modules": "warn",
+      "import/no-internal-modules": [
+        "warn",
+        { "allow": [ "**/http" ] }
+      ],
+      "spellcheck/spell-checker": [
+        "error",
+        {
+          "minLength": 4,
+          "skipWords": [ "utf8", "oauth", "passphrase" ]
+        }
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -26,16 +47,16 @@
     "url": "https://github.com/johnCision/spike/issues"
   },
   "homepage": "https://github.com/johnCision/spike#readme",
-  "dependencies": {
-    "@johncision/eslint-config": "^2.0.0",
-    "eslint": "^8.0.1"
-  },
   "devDependencies": {
+    "@johncision/eslint-config": "file:../eslint-config",
+    "eslint": "^8.0.1",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-immutable": "^1.0.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-no-use-extend-native": "^0.5.0",
     "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-spellcheck": "^0.0.19",
     "nodemon": "^2.0.13"
   }
 }

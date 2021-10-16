@@ -6,13 +6,13 @@ const {
 } = http2.constants;
 
 
-export async function createLocalServer(options) {
+export async function createHTTP2Server(options) {
 	const { key, cert, pfx, passphrase } = options
 
 	return http2.createSecureServer({
 		key,
 		cert,
-		allowHTTP1: true,
+		allowHTTP1: false,
 		secureOptions: SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1,
 		pfx,
 		passphrase

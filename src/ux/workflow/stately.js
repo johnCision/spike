@@ -1,4 +1,3 @@
-
 export class Stately {
 	static async transition(machine, state, transition) {
 		const options = machine[state]
