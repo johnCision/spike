@@ -1,8 +1,11 @@
+import { MessageChannel } from 'worker_threads'
 
 import { createWorkflowHandler } from './workflow/workflow.js'
 
+import { iriToRelativePath } from './util-iri-relative-path.js'
+
 export async function createWorkflowInstance(workflow, baseIrn) {
-	const route = routeFromIrn(workflow.irn, baseIrn)
+	const route = iriToRelativePath(workflow.irn, baseIrn)
 	const handler = await createWorkflowHandler(workflow.parameters)
 	const channel = new MessageChannel()
 

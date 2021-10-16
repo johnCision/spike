@@ -32,7 +32,10 @@
         "error",
         {
           "minLength": 4,
-          "skipWords": [ "utf8", "oauth", "passphrase" ]
+          "skipWords": [
+            "utf8", "oauth", "passphrase",
+            "charset", "pathname", "argv"
+          ]
         }
       ]
     }

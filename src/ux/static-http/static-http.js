@@ -14,13 +14,14 @@ export async function createHTTPStaticServer(options) {
 
 		const irl = options[bestRoute]
 
-		// sync so unse promsie api
+		// sync so use promise api
 		fs.readFile(irl, 'utf-8')
 			.then(file => {
 				res.write(file)
 				res.end()
 			})
 			.catch(e => {
+				console.log('', { e })
 				res.statusCode = 404
 				res.end()
 			})

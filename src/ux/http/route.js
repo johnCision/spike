@@ -10,7 +10,7 @@ function writeResponse(res, code, obj) {
 	res.writeHead(code, {
 		'Access-Control-Allow-Origin': '*',
 		'Content-Length': ab.byteLength,
-		'Content-Type': 'applicatin/json; charset=utf-8'
+		'Content-Type': 'application/json; charset=utf-8'
 	})
 	res.write(body)
 	res.end()
@@ -22,7 +22,7 @@ export async function createRouter(options) {
 	return (req, res) => {
 		// construct a url object out of the request url
 		// need a dummy base in order to construct properly, however,
-		// it is not - and should not - ever be read in the follwoing code
+		// it is not - and should not - ever be read in the following code
 		const reqUrl = new URL(req.url, 'https://dummy')
 
 		const { pathname, search } = reqUrl
@@ -31,11 +31,11 @@ export async function createRouter(options) {
 		console.log({ method, pathname, search })
 
 		// find 'best' pathname for this request
-		const canidates = Object.keys(options)
+		const candidate = Object.keys(options)
 			.filter(key => pathname.startsWith(key))
 
-		const basePathname = canidates
-			.find(key => true) // should add subfind based on length of key
+		const basePathname = candidate
+			.find(_key => true) // should add find based on length of key
 
 		// lookup and validate handler
 		const servicePort = options[basePathname]

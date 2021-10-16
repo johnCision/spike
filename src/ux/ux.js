@@ -21,8 +21,8 @@ const commandLineArg = process.argv[process.argv.length - 1]
 const envSchema = await fs.readFile('./src/ux/ux.env.schema.json', UTF_8)
 
 async function createSpikeInstance(instanceEnv) {
-	const canidateUx = await fs.readFile(instanceEnv, UTF_8)
-	const ux = await validate(canidateUx, envSchema)
+	const candidateUX = await fs.readFile(instanceEnv, UTF_8)
+	const ux = await validate(candidateUX, envSchema)
 
 	// read in all the stuff for https
 	// should add AbortController to these calls

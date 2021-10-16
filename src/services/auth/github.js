@@ -60,7 +60,7 @@ async function request_token(code, client_id, client_secret, _cert) {
 }
 
 async function handleMessage(message) {
-	const { method, pathname, search } = message
+	const { search } = message
 
 	const sp = new URLSearchParams(search)
 	if(!sp.has('code')) {
@@ -86,4 +86,3 @@ function handleErrorSync(err) {
 const { client_id, client_secret, cert } = workerData
 parentPort.on('message', handleMessageSync)
 parentPort.on('error', handleErrorSync)
-
