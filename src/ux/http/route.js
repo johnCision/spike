@@ -28,7 +28,7 @@ export async function createRouter(options) {
 		const { pathname, search } = reqUrl
 		const { method } = req
 
-		console.log({ method, pathname, search })
+		console.log('Router:', { method, pathname, search })
 
 		// find 'best' pathname for this request
 		const candidate = Object.keys(options)

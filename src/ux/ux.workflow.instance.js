@@ -13,7 +13,7 @@ export async function createWorkflowInstance(workflow, baseIrn) {
 		const { replyPort } = msg
 
 		// in sync method, use promise api
-		handler()
+		handler({ ...msg, replyPort: undefined })
 			.then(result => replyPort.postMessage(result))
 			.catch(e => console.warn('workflow reply message handler error', { e }))
 	})

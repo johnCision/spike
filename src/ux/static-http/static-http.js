@@ -6,7 +6,7 @@ export async function createHTTPStaticServer(options) {
 	const requestListener = (req, res) => {
 		if(req.method !== 'GET') { res.end(); return }
 
-		console.log(req.method, req.url)
+		console.log('Static Server', req.method, req.url)
 
 		const bestRoute = Object.keys(options)
 			.filter(key => req.url.startsWith(key))
@@ -21,7 +21,7 @@ export async function createHTTPStaticServer(options) {
 				res.end()
 			})
 			.catch(e => {
-				console.log('', { e })
+				console.log('static server read file error', { e })
 				res.statusCode = 404
 				res.end()
 			})
