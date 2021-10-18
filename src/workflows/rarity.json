@@ -1,6 +1,20 @@
 {
-	"$schema": "irn:spike/ux",
+	"$schema": "irn:spike/ux/workflow/definition",
 	"name": "rarity",
 
-
+	"anon": {
+		"LOGIN": { "target": "welcome_user" }
+	},
+	"welcome_user": {
+		"LOGOUT": { "target": "anon" },
+		"START": { "target": "questions" }
+	},
+	"questions": {
+		"RESET": { "target": "welcome_user" }
+	},
+	"home": {
+		"LOGOUT": { "target": "anon" },
+		"RESET": { "target": "welcome_user" },
+		"START": { "target": "questions"}
+	}
 }

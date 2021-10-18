@@ -1,6 +1,6 @@
 import { Stately } from './stately.js'
 
-export async function createWorkflowHandler(_storage, _machine) {
+export async function createWorkflowHandler(machine, options) {
 	return async message => {
 		console.log('Workflow', { message })
 
@@ -10,8 +10,12 @@ export async function createWorkflowHandler(_storage, _machine) {
 		// update user state
 		// and return
 
+		const requestTransition = 'START'
+		const userState = 'welcome_user'
 
+		const effect = Stately.apply(machine, userState, requestTransition)
+		const { state } = effect
 
-		return { state: 'questions' }
+		return { state }
 	}
 }

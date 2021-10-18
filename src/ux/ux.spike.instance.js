@@ -7,11 +7,11 @@ import { createRouter } from './http/route.js'
 import { createServiceInstance } from './ux.service.instance.js'
 import { createWorkflowInstance } from './ux.workflow.instance.js'
 
-export async function createSpikeInstance(ux, secrets) {
+export async function createSpikeInstance(ux, workflows, secrets) {
 	// read in all the stuff for https
 	// should add AbortController to these calls
 
-	const futureWorkflows = ux.workflows
+	const futureWorkflows = workflows
 		.filter(workflow => workflow.active !== false)
 		.map(workflow => createWorkflowInstance(workflow, ux.irn))
 

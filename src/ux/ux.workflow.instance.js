@@ -6,7 +6,10 @@ import { iriToRelativePath } from './util-iri-relative-path.js'
 
 export async function createWorkflowInstance(workflow, baseIrn) {
 	const route = iriToRelativePath(workflow.irn, baseIrn)
-	const handler = await createWorkflowHandler(workflow.parameters)
+	const handler = await createWorkflowHandler(
+		workflow.machine,
+		workflow.parameters)
+
 	const channel = new MessageChannel()
 
 	channel.port2.on('message', msg => {
