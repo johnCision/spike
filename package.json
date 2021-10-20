@@ -1,7 +1,7 @@
 {
   "name": "@johncision/spike",
   "description": "",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "type": "module",
   "files": [
     "src/**/*.js"
@@ -57,7 +57,9 @@
   },
   "nodemone": {},
   "mocha": {
-    "spec": [ "spec/*.spec.js" ],
+    "spec": [
+      "spec/*.spec.js"
+    ],
     "watch": false,
     "sort": false,
     "forbitOnly": true,
@@ -74,7 +76,7 @@
   },
   "homepage": "https://github.com/johnCision/spike#readme",
   "devDependencies": {
-    "@johncision/eslint-config": "^3.0.0",
+    "@johncision/eslint-config": "^3.0.1",
     "c8": "^7.10.0",
     "chai": "^4.3.4",
     "eslint": "^8.0.1",
