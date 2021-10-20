@@ -1,0 +1,21 @@
+name: CI
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  Build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [ 14, 16 ]
+        os: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@johncision'
+      - run: npm install
+      - run: npm run lint --if-present
+      - run: npm run test --if-present
+      - run: npm run coverage --if-present
+

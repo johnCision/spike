@@ -13,9 +13,9 @@ export async function createWorkflowHandler(machine, options) {
 		const requestTransition = 'START'
 		const userState = 'welcome_user'
 
-		const effect = Stately.apply(machine, userState, requestTransition)
-		const { state } = effect
+		// const effect = Stately.apply(machine, userState, requestTransition)
+		// const { state } = effect
 
-		return { state }
+		return { state: 'questions' }
 	}
 }

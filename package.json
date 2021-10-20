@@ -1,44 +1,67 @@
 {
   "name": "@johncision/spike",
   "description": "",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "files": [
     "src/**/*.js"
   ],
   "scripts": {
     "ux": "node src/ux/ux src/ux.env.json",
-    "lint": "node_modules/.bin/eslint ."
+    "lint": "node_modules/.bin/eslint --quiet .",
+    "test": "node_modules/.bin/mocha .",
+    "coverage": "c8 --check-coverage --all npm run test -- --no-parallel --reporter min"
   },
   "eslintConfig": {
     "extends": [
       "@johncision/eslint-config/module"
     ],
     "ignorePatterns": "spec/**",
-    "env": { "node": true },
+    "env": {
+      "node": true
+    },
     "rules": {
       "fp/no-unused-expression": 0,
       "fp/no-nil": 0,
-      "no-unused-vars": [ "error", {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }],
+      "no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_"
+        }
+      ],
       "import/no-nodejs-modules": "warn",
       "import/no-internal-modules": [
         "warn",
-        { "allow": [ "**/http" ] }
+        {
+          "allow": [
+            "**/http"
+          ]
+        }
       ],
       "spellcheck/spell-checker": [
         "error",
         {
           "minLength": 4,
           "skipWords": [
-            "utf8", "oauth", "passphrase",
-            "charset", "pathname", "argv"
+            "utf8",
+            "oauth",
+            "passphrase",
+            "charset",
+            "pathname",
+            "argv"
           ]
         }
       ]
     }
+  },
+  "nodemone": {},
+  "mocha": {
+    "spec": [ "spec/*.spec.js" ],
+    "watch": false,
+    "sort": false,
+    "forbitOnly": true,
+    "check-leaks": true
   },
   "repository": {
     "type": "git",
@@ -52,6 +75,8 @@
   "homepage": "https://github.com/johnCision/spike#readme",
   "devDependencies": {
     "@johncision/eslint-config": "file:../eslint-config",
+    "c8": "^7.10.0",
+    "chai": "^4.3.4",
     "eslint": "^8.0.1",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-immutable": "^1.0.0",
@@ -60,6 +85,7 @@
     "eslint-plugin-no-use-extend-native": "^0.5.0",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-spellcheck": "^0.0.19",
+    "mocha": "^9.1.3",
     "nodemon": "^2.0.13"
   }
 }
