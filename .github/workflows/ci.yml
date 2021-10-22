@@ -9,7 +9,7 @@ jobs:
       packages: read
     strategy:
       matrix:
-        node: [ 14, 16 ]
+        node: [ 14, 16, 17 ]
         os: [ ubuntu-latest ]
     steps:
       - uses: actions/checkout@v2
