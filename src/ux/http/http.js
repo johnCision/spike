@@ -14,7 +14,7 @@ export async function createHTTP2Server(options) {
 		cert,
 		allowHTTP1: false,
 		secureOptions: SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1,
-		pfx,
+		//pfx,
 		passphrase
 	})
 }
