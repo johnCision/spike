@@ -1,7 +1,7 @@
 {
   "name": "@johncision/spike",
   "description": "",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "type": "module",
   "files": [
     "src/**/*.js"
@@ -76,7 +76,7 @@
   },
   "homepage": "https://github.com/johnCision/spike#readme",
   "devDependencies": {
-    "@johncision/eslint-config": "^3.0.1",
+    "@johncision/eslint-config": "^3.0.9",
     "c8": "^7.10.0",
     "chai": "^4.3.4",
     "eslint": "^8.0.1",

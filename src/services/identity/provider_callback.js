@@ -19,7 +19,7 @@ async function githubIdentityLookup(options) {
 
 	const code = sp.get('code')
 
-	performance.mark('github:requestToken:start')
+	performance.mark('github:requestToken:begin')
 	const token = await Github.requestToken(code, client_id, client_secret)
 	performance.mark('github:requestToken:end')
 
@@ -33,9 +33,15 @@ async function githubIdentityLookup(options) {
 	const identity = await signIdentity(email)
 	performance.mark('identity:signIdentity:end')
 
-	performance.measure('github:requestToken', 'github:requestToken:start', 'github:requestToken:end')
-	performance.measure('github:requestEmail', 'github:requestEmail:start', 'github:requestEmail:end')
-	performance.measure('identity:signIdentity', 'identity:signIdentity:start', 'identity:signIdentity:end')
+	performance.measure(
+		'github:requestToken',
+		'github:requestToken:begin', 'github:requestToken:end')
+	performance.measure(
+		'github:requestEmail',
+		'github:requestEmail:begin', 'github:requestEmail:end')
+	performance.measure(
+		'identity:signIdentity',
+		'identity:signIdentity:begin', 'identity:signIdentity:end')
 
 	return identity
 }

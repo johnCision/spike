@@ -11,8 +11,7 @@ if(process.argv.length <= 2) {
 }
 const envPath = process.argv[process.argv.length - 1]
 
-const [ workflowSchema, envSchema, candidateEnv ] = await Promise.all([
-	fs.readFile('./src/ux/workflow/workflow.schema.json', UTF_8),
+const [ envSchema, candidateEnv ] = await Promise.all([
 	fs.readFile('./src/ux/ux.env.schema.json', UTF_8),
 	fs.readFile(envPath, UTF_8)
 ])
@@ -26,15 +25,22 @@ const [ cert, key, pfx ] = await Promise.all([
 	fs.readFile(ux.secrets.pfx) // utf-8 here failed
 ])
 
-const workflows = await Promise.all(ux.workflows
-	.map(async workflow => {
-		if(workflow.active === false) { return workflow }
-		const candidateIrlData = await fs.readFile(workflow.irl)
-		const machine = await validate(candidateIrlData, workflowSchema)
-		return { ...workflow, machine }
-	}))
+const machineSchema = ''
+
+const services = await Promise.all(ux.services.map(async service => {
+	if(service.active === false) { return service }
+	if(service?.parameters?.machineIrl === undefined) { return service }
+	const machineStr = await fs.readFile(service.parameters.machineIrl)
+	const machine = await validate(machineStr, machineSchema)
+
+	return {
+		...service,
+		machine
+	}
+}))
+
 
 // and go!
-const _ = await createSpikeInstance(ux, workflows, {
+const _ = await createSpikeInstance({ ...ux, services }, {
 	cert, key, pfx, passphrase: ux.secrets.passphrase
 })
