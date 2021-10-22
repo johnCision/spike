@@ -5,11 +5,23 @@ async function handleMessage(message, options = {}) {
 	const { _search, replyPort } = message
 	const { machine } = options
 
-
-
-
-
-	//replyPort.postMessage({	})
+	replyPort.postMessage({
+		state: 'questionnaire',
+		link: [
+			{
+				rel: 'validate',
+				irn: 'irn:spike/ux/service/rarity/app?validate'
+			},
+			{
+				rel: 'submit',
+				irn: 'irn:spike/ux/service/rarity/app?validate'
+			},
+			{
+				rel: 'watch',
+				irn: 'irn:spike/ux/ws/questionnaire/rarity'
+			}
+		]
+	})
 }
 
 function handleMessageSync(message, options) {
@@ -23,7 +35,5 @@ function handleErrorSync(err) {
 }
 
 //
-const { machineIrl } = workerData
-
 parentPort.on('message', msg => handleMessageSync(msg, workerData))
 parentPort.on('error', handleErrorSync)
