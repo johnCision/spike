@@ -1,4 +1,5 @@
 import { MessageChannel } from 'worker_threads'
+import { Readable } from 'stream'
 
 function writeResponse(res, code, diffMs, obj) {
 	const body = JSON.stringify(obj)
@@ -34,6 +35,21 @@ function writeRedirect(res, diffMs, utcNow, redirect) {
 	res.end()
 }
 
+function writeBlob(res, diffMs, result) {
+	const { blob, mime } = result
+
+	const enc = new TextEncoder()
+	const ab = enc.encode(blob)
+
+	res.writeHead(200, {
+		'Access-Control-Allow-Origin': '*',
+		'Content-Length': ab.byteLength,
+		'Content-Type': 'application/json; charset=utf-8',
+		'Server-Timing': 'message;dur=' + diffMs
+	})
+	res.write(blob)
+	res.end()
+}
 
 export async function createRouter(options, utcNow) {
 	return (req, res) => {
@@ -47,7 +63,7 @@ export async function createRouter(options, utcNow) {
 		const { pathname, search } = reqUrl
 		const { method } = req
 
-		console.log('Router:', { method, pathname, search })
+		//console.log('Router:', { method, pathname, search })
 
 		// find 'best' pathname for this request
 		const candidate = Object.keys(options)
@@ -75,6 +91,7 @@ export async function createRouter(options, utcNow) {
 		port.on('message', reply => {
 			clearTimeout(timer)
 			if(reply.redirect === true) { writeRedirect(res, utcNow() - startTime, utcNow, reply); return }
+			if(reply.blob !== undefined) { writeBlob(res, utcNow() - startTime, reply); return }
 			writeResponse(res, 200, utcNow() - startTime, reply)
 		})
 		port.on('error', e => {

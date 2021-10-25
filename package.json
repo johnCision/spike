@@ -49,7 +49,8 @@
             "passphrase",
             "charset",
             "pathname",
-            "argv"
+            "argv",
+            "lang"
           ]
         }
       ]

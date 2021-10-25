@@ -1,25 +1,19 @@
+import { promises as fs } from 'fs'
 import { workerData, parentPort } from 'worker_threads'
 
 async function handleMessage(message, options = {}) {
-	//
-	const { _search, replyPort } = message
-	const { _machine } = options
+	const { replyPort, pathname, search } = message
 
-	replyPort.postMessage({
-		_state: 'questionnaire',
+	// mime type
 
-		links: [
-			{
-				rel: 'questionnaire',
-				//irn: 'irn:spike/ux/service/questionnaire'
-				irn: 'https://localhost:8080/service/questionnaire'
-			},
-			{
-				rel: 'watch',
-				irn: 'irn:spike/ux/ws/questionnaire/rarity'
-			}
-		]
-	})
+	const pathNameLocal = pathname.replace('/service/blob', '') // todo router normalized pathnameLocal
+
+
+
+	const path = './src/ux.env.json'
+	const blob = await fs.readFile(path, { flag: 'r', encoding: 'utf-8' })
+
+	replyPort.postMessage({ blob })
 }
 
 function handleMessageSync(message, options) {
