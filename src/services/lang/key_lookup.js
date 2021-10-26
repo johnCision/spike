@@ -23,13 +23,20 @@ async function handleMessage(message, options = {}) {
 		en: {
 			prev: 'Previous',
 			next: 'Next',
-			submit: 'Submit'
+			submit: 'Submit',
+			reset: 'Reset',
+
+			contacts: 'Contacts',
+
+			driverComments: 'Additional comments for the driver?'
 		},
 		fr: {
 			prev: 'Retourner',
 			// next: 'Avance',
 			submit: 'Soumettre',
 			reset: 'Réinitialiser',
+
+			contacts: 'Contacts',
 
 			toppings: 'Quelles garnitures aimeriez-vous?',
 			pieSize: 'Taille de la tarte ?',

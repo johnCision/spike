@@ -22,10 +22,10 @@ async function handleMessage(message, options = {}) {
 			validateIrn: 'irn:spike/ux/workflow/question/validate?question=urn:question/🍕'
 		},
 		{
-			irn: 'irn:question/top',
+			irn: 'irn:rarity/orderPizza/question/toppings',
 			type: 'choice',
-			lang: 'en-US',
-			questionKey: 'pie-size',
+			lang: 'en',
+			questionKey: 'pieSize',
 			question: 'what size of a pie shall we cook for you?',
 			choices: [
 				{ name: 'single slice' },
@@ -34,17 +34,17 @@ async function handleMessage(message, options = {}) {
 			]
 		},
 		{
-			irn: 'irn:question/comments',
+			irn: 'irn:rarity/orderPizza/question/comments',
 			type: 'text',
-			lang: 'en-US',
-			questionKey: 'driver-comment',
+			lang: 'en',
+			questionKey: 'driverComments',
 			question: 'comment for the driver?',
 			maxLength: 100
 		},
 		{
-			irn: 'irn:question/comments2',
+			irn: 'irn:rarity/orderPizza/question/comments2',
 			type: 'text',
-			lang: 'en-US',
+			lang: 'en',
 			questionKey: 'other',
 			question: 'other comments??',
 			maxLength: 100
