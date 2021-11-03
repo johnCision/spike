@@ -12,14 +12,20 @@ async function handleMessage(message, options = {}) {
 
 	const questions = [
 		{
-			irn: 'irn:question/🍕',
+			irn: 'irn:rarity/orderPizza/question/🍕',
 			type: 'pill',
 			lang: 'en',
 			questionKey: 'toppings',
 			question: 'what toppings would you like on your pizza?',
 
-			pillLookupIrn: 'irn:spike/ux/workflow/questions/pillMatch?question=urn:question/🍕',
-			validateIrn: 'irn:spike/ux/workflow/question/validate?question=urn:question/🍕'
+			links: [
+				{ rel: 'pillMatch', irn: 'irn:rarity/orderPizza/toppings/pillMatch' },
+				{
+					rel: 'validate',
+					irn: 'irn:rarity/orderPizza/question/validate?question=irn:rarity/orderPizza/question/🍕',
+					irl: 'https://localhost:8080/service/orderPizza/question/validate?question=irn:rarity/orderPizza/question/🍕'
+				}
+			]
 		},
 		{
 			irn: 'irn:rarity/orderPizza/question/toppings',
@@ -31,6 +37,10 @@ async function handleMessage(message, options = {}) {
 				{ name: 'single slice' },
 				{ name: 'normal pie' },
 				{ name: 'party size' }
+			],
+
+			links: [
+				{ rel: 'validate', irn: '' }
 			]
 		},
 		{

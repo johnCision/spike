@@ -5,8 +5,8 @@ import { Github } from './github.js'
 
 const CLIENT_ID_FIELD_NAME = 'client_id'
 
-async function signIdentity(email) {
-	return { email, signed: true }
+async function signIdentity(identity) {
+	return { ...identity, signed: true }
 }
 
 async function githubIdentityLookup(options) {
@@ -74,10 +74,15 @@ async function handleMessage(message, options = {}) {
 	try {
 		const identity = await githubIdentityLookup({ search, ...options })
 
+
+		// this is not a good idea
+		const redirectUrl = new URL(irl)
+		redirectUrl.searchParams.append('jwt', JSON.stringify(identity))
+
 		replyPort.postMessage({
 			redirect: true,
 			status: 303,
-			irl,
+			irl: redirectUrl.toString(),
 			identity
 		})
 

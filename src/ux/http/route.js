@@ -51,6 +51,33 @@ function writeBlob(res, diffMs, result) {
 	res.end()
 }
 
+function writeEventHead(res) {
+	//console.log('write Event Head')
+	const BOM = String(0xFEFF)
+
+	res.writeHead(200, {
+		'Access-Control-Allow-Origin': '*',
+		'Content-type': 'text/event-stream'
+	})
+	res.write(BOM)
+	res.write('\r\n')
+}
+
+function writeEvent(res, diffMs, result) {
+	//console.log('write Event', result)
+	result.lines.forEach(line => res.write(line))
+}
+
+function writeOptions(res, options) {
+	const allowList = options.join(', ')
+
+	res.writeHead(204, {
+		'Allow': allowList,
+		'Access-Control-Allow-Origin': '*'
+	})
+}
+
+
 export async function createRouter(options, utcNow) {
 	return (req, res) => {
 		const startTime = utcNow()
@@ -63,7 +90,7 @@ export async function createRouter(options, utcNow) {
 		const { pathname, search } = reqUrl
 		const { method } = req
 
-		//console.log('Router:', { method, pathname, search })
+		// console.log('Router:', { method, pathname, search })
 
 		// find 'best' pathname for this request
 		const candidate = Object.keys(options)
@@ -80,16 +107,28 @@ export async function createRouter(options, utcNow) {
 			return
 		}
 
+		const isESAccepted = req.headers['accept'] === 'text/event-stream'
+		const requestType = isESAccepted ? 'event-stream' : 'http-request'
+
+		if(isESAccepted) { writeEventHead(res) }
+
 		const channel = new MessageChannel()
 		const port = channel.port1
 
-
-		const timer = setTimeout(() => {
+		const timer = isESAccepted ? undefined : setTimeout(() => {
 			writeResponse(res, 408, utcNow() - startTime, { error: 'timeout' })
 		}, 1000 * 1)
 
+		res.on('close', () => {
+			// console.log('---response stream closed', requestType, isESAccepted)
+			clearTimeout(timer)
+			port.close()
+		})
+
 		port.on('message', reply => {
 			clearTimeout(timer)
+			if(reply.options !== undefined) { writeOptions(res, reply.options); return }
+			if(reply.event === true) { writeEvent(res, utcNow() - startTime, reply); return }
 			if(reply.redirect === true) { writeRedirect(res, utcNow() - startTime, utcNow, reply); return }
 			if(reply.blob !== undefined) { writeBlob(res, utcNow() - startTime, reply); return }
 			writeResponse(res, 200, utcNow() - startTime, reply)
@@ -101,10 +140,27 @@ export async function createRouter(options, utcNow) {
 				message: e?.message })
 		})
 
-		servicePort.postMessage({
-			type: 'http-request',
-			method, pathname, search,
-			replyPort: channel.port2
-		}, [ channel.port2 ])
+		const dec = new TextDecoder()
+		let accumulator = ''
+		req.on('data', chunk => {
+			accumulator += dec.decode(chunk, { stream: true })
+		})
+		req.on('end', () => {
+			accumulator += dec.decode()
+
+			// console.log({ accumulator }, typeof accumulator)
+
+			servicePort.postMessage({
+				type: requestType,
+				method, pathname, search, body: accumulator,
+				replyPort: channel.port2
+			}, [ channel.port2 ])
+		})
+
+		// servicePort.postMessage({
+		// 	type: requestType,
+		// 	method, pathname, search,
+		// 	replyPort: channel.port2
+		// }, [ channel.port2 ])
 	}
 }

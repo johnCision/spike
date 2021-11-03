@@ -1,24 +1,40 @@
 import { workerData, parentPort } from 'worker_threads'
 
+
+const linkForStates = {
+	settings: [
+		{ rel: 'settings', irn: 'irn:rarity/settings', irl: 'https://localhost:8080/service/settings' }
+	],
+	questionnaire: [
+		{
+			rel: 'questionnaire',
+			irn: 'irn:rarity/questionnaire',
+			irl: 'https://localhost:8080/service/questionnaire'
+		},
+		{
+			rel: 'watch',
+			irn: 'irn:spike/ux/ws/questionnaire/rarity'
+		}
+	],
+	dashboard: [
+		{
+			rel: 'dashboard',
+			irn: 'irn:rarity/dashboard',
+			irl: 'https://localhost:8080/service/dashboard'
+		}
+	]
+}
+
+
 async function handleMessage(message, options = {}) {
 	//
 	const { _search, replyPort } = message
 	const { _machine } = options
 
-	replyPort.postMessage({
-		_state: 'questionnaire',
+	const state = 'questionnaire'
 
-		links: [
-			{
-				rel: 'questionnaire',
-				//irn: 'irn:spike/ux/service/questionnaire'
-				irn: 'https://localhost:8080/service/questionnaire'
-			},
-			{
-				rel: 'watch',
-				irn: 'irn:spike/ux/ws/questionnaire/rarity'
-			}
-		]
+	replyPort.postMessage({
+		links: linkForStates[state]
 	})
 }
 
