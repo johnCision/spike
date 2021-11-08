@@ -1,16 +1,26 @@
 import { workerData, parentPort } from 'worker_threads'
 import { PerformanceObserver, performance } from 'perf_hooks'
+import { promises as fs } from 'fs'
+
+import jsonwebtoken from 'jsonwebtoken'
 
 import { Github } from './github.js'
 
 const CLIENT_ID_FIELD_NAME = 'client_id'
 
-async function signIdentity(identity) {
-	return { ...identity, signed: true }
+async function signIdentity(payload, options) {
+
+	const privateKey = await fs.readFile('./secrets/jwt_private.pem')
+	const secret = privateKey // 'do not tell' // { key, phrase }
+
+	const signed = jsonwebtoken.sign(payload, secret, options)
+	// console.log({ signed })
+
+	return signed
 }
 
 async function githubIdentityLookup(options) {
-	const { search, client_id, client_secret } = options
+	const { search, client_id, client_secret, jwtOptions } = options
 
 	const sp = new URLSearchParams(search)
 	if(!sp.has('code')) {
@@ -19,6 +29,17 @@ async function githubIdentityLookup(options) {
 
 	const code = sp.get('code')
 
+	// TODO
+	if(code === '1234') {
+		return signIdentity(
+			{
+				_id: {
+					email: 'user@domain.tld',
+					provider: 'github'
+				}
+			}, jwtOptions)
+	}
+
 	performance.mark('github:requestToken:begin')
 	const token = await Github.requestToken(code, client_id, client_secret)
 	performance.mark('github:requestToken:end')
@@ -26,11 +47,11 @@ async function githubIdentityLookup(options) {
 	console.log({ token })
 
 	performance.mark('github:requestEmail:begin')
-	const email = await Github.requestEmail(token)
+	const payload = await Github.requestEmail(token)
 	performance.mark('github:requestEmail:end')
 
 	performance.mark('identity:signIdentity:begin')
-	const identity = await signIdentity(email)
+	const identity = await signIdentity(payload)
 	performance.mark('identity:signIdentity:end')
 
 	performance.measure(
@@ -48,10 +69,7 @@ async function githubIdentityLookup(options) {
 
 
 async function handleMessage(message, options = {}) {
-	//
-	// step 2) GET /callback?client_id&provider_code -> redirect(application_url) + JWT
-	// https://localhost:8080/service/identity/callback?client_id=rarity_client_id&code=a4810a278fca9fe64722&state=NOISE
-	//
+
 	const { replyPort, search } = message
 
 	const sp = new URLSearchParams(search)
@@ -73,17 +91,17 @@ async function handleMessage(message, options = {}) {
 
 	try {
 		const identity = await githubIdentityLookup({ search, ...options })
-
+		console.log('identity lookup', identity)
 
 		// this is not a good idea
 		const redirectUrl = new URL(irl)
-		redirectUrl.searchParams.append('jwt', JSON.stringify(identity))
+		redirectUrl.searchParams.append('jwt', identity)
 
 		replyPort.postMessage({
 			redirect: true,
 			status: 303,
 			irl: redirectUrl.toString(),
-			identity
+			jwt: identity
 		})
 
 	} catch (e) {

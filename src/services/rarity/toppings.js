@@ -2,11 +2,11 @@ import { workerData, parentPort } from 'worker_threads'
 
 
 const toppings = [
-	{ key: Symbol('pepperoni'), vegan: false },
-	{ key: Symbol('sausage'), vegan: false },
-	{ key: Symbol('onion'), vegan: true },
-	{ key: Symbol('mushroom'), vegan: true },
-	{ key: Symbol('pineapple'), vegan: true }
+	{ key: 'pepperoni', vegan: false },
+	{ key: 'sausage', vegan: false, upCharge: true },
+	{ key: 'onion', vegan: true },
+	{ key: 'mushroom', vegan: true },
+	{ key: 'pineapple', vegan: true, upCharge: true }
 ]
 
 async function handleMessage(message, options = {}) {

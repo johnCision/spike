@@ -19,11 +19,11 @@ function writeResponse(res, code, diffMs, obj) {
 }
 
 function writeRedirect(res, diffMs, utcNow, redirect) {
-	const { status, irl } = redirect
+	const { status, irl, jwt } = redirect
 	const expires = new Date(utcNow() + 1000 * 60 * 1).toUTCString()
 
 	const cookie = {
-		'Set-Cookie': 'this=that; SameSite=None; Secure; Expires=' + expires + ';'
+		'Set-Cookie': 'jwt=' + jwt + '; SameSite=None; Secure; Expires=' + expires + '; HttpOnly;'
 	}
 
 	res.writeHead(status, {
