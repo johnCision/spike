@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 import { workerData, parentPort } from 'worker_threads'
 
 const SP_LANG = 'lang'

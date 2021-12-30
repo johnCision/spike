@@ -17,11 +17,11 @@ async function handleMessage(message, options = { }) {
 	// TODO move to spike file read setup phase (no fs in workers)
 	const publicKey = await fs.readFile(options.jwtPublicKeyIrl)
 
-	const jwtoptions = {
-		//expiresIn: '5 min',
-		algorithm: 'RS256'
-		// subject: ''
-	}
+	// const jwtOptions = {
+	// 	//expiresIn: '5 min',
+	// 	algorithm: 'RS256'
+	// 	// subject: ''
+	// }
 
 	const { email, exp } = await new Promise((resolve, reject) => {
 		jsonwebtoken.verify(jwt, publicKey, (e, decoded) => {
@@ -31,6 +31,7 @@ async function handleMessage(message, options = { }) {
 	})
 
 	// TODO check exp
+	console.log({ exp })
 
 	const userInfo = options.users[email]
 

@@ -7,7 +7,7 @@ const {
 
 
 export async function createHTTP2Server(options) {
-	const { key, cert, pfx, passphrase } = options
+	const { key, cert, _pfx, passphrase } = options
 
 	return http2.createSecureServer({
 		key,

@@ -13,6 +13,8 @@ async function signIdentity(payload, options) {
 	const privateKey = await fs.readFile('./secrets/jwt_private.pem')
 	const secret = privateKey // 'do not tell' // { key, phrase }
 
+	console.log('sign options', options)
+
 	const signed = jsonwebtoken.sign(payload, secret, options)
 	// console.log({ signed })
 
@@ -51,7 +53,7 @@ async function githubIdentityLookup(options) {
 	performance.mark('github:requestEmail:end')
 
 	performance.mark('identity:signIdentity:begin')
-	const identity = await signIdentity(payload)
+	const identity = await signIdentity(payload, jwtOptions)
 	performance.mark('identity:signIdentity:end')
 
 	performance.measure(

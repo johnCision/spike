@@ -1,5 +1,4 @@
-import { workerData, parentPort } from 'worker_threads'
-
+import { parentPort, workerData } from 'worker_threads'
 
 const linkForStates = {
 	settings: [
@@ -22,6 +21,9 @@ const linkForStates = {
 			irn: 'irn:rarity/dashboard',
 			irl: 'https://localhost:8080/service/dashboard'
 		}
+	],
+	communityHome: [
+		{ rel: 'communitySearch', irn: 'irn:rarity/search/community' }
 	]
 }
 

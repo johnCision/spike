@@ -1,5 +1,5 @@
 import { MessageChannel } from 'worker_threads'
-import { Readable } from 'stream'
+// import { Readable } from 'stream'
 
 function writeResponse(res, code, diffMs, obj) {
 	const body = JSON.stringify(obj)
@@ -36,7 +36,7 @@ function writeRedirect(res, diffMs, utcNow, redirect) {
 }
 
 function writeBlob(res, diffMs, result) {
-	const { blob, mime } = result
+	const { blob } = result
 
 	const enc = new TextEncoder()
 	const ab = enc.encode(blob)
@@ -52,8 +52,8 @@ function writeBlob(res, diffMs, result) {
 }
 
 function writeEventHead(res) {
-	//console.log('write Event Head')
-	const BOM = String(0xFEFF)
+	const BOM_HEX = 0xFEFF
+	const BOM = String(BOM_HEX)
 
 	res.writeHead(200, {
 		'Access-Control-Allow-Origin': '*',
@@ -64,7 +64,6 @@ function writeEventHead(res) {
 }
 
 function writeEvent(res, diffMs, result) {
-	//console.log('write Event', result)
 	result.lines.forEach(line => res.write(line))
 }
 
@@ -147,8 +146,6 @@ export async function createRouter(options, utcNow) {
 		})
 		req.on('end', () => {
 			accumulator += dec.decode()
-
-			// console.log({ accumulator }, typeof accumulator)
 
 			servicePort.postMessage({
 				type: requestType,
